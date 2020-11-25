@@ -8,30 +8,30 @@ def generate_key():
     global key_pair
 
     #generate RSA key pair
+    print("[+] Generating RSA Key Pair")
     key = RSA.generate(2048) #Create a new RSA key pair
+    print(f"[+] Generated RSA Key :{key}")
     key_pair={}
     #print(key)
     key_pair['private']=key.exportKey() #export Private Key
     key_pair['public']=key.publickey().exportKey() #export Public Key
+    print(f"[+] Public key : \n{key_pair['public'].decode('UTF-8')}")
+    print(f"[+] Private key : \n{key_pair['private'].decode('UTF-8')}")
 
 #Store keys in their respective files
 def write_keys():
-
     global key_pair
     
     print("\n[+] Writing Public Key")
-    
     f = open("public.pem", "wb")
     f.write(key_pair['public'])
     f.close()
-    
     print("[+] Wrote Public Key In public.pem")
+
     print("\n[+] Writing Private Key")
-    
     f = open(".private.pem", "wb") # Hidden file 
     f.write(key_pair['private'])
     f.close()
-
     print("[+] Wrote Private Key In .private.pem\n")
 
 #Encrypt Fernet Key
@@ -39,7 +39,7 @@ def encrypt_fernet_key():
 	
 	global key_pair
 
-	print("[+] Encrypting Fernet Key")
+	print("[+] Encrypting Fernet Key\n")
 
 	#public_key=RSA.importKey(open('public.pem').read())
 	public_key=RSA.importKey(key_pair['public']) #Import an RSA key (public), encoded in standard form
@@ -47,7 +47,7 @@ def encrypt_fernet_key():
 	
 	with open('fernet_key.txt','rb') as f :
 		fernet_key=f.read()
-
+	print(f"[+] Imported fernet key : {fernet_key.decode('UTF-8')}")
 	#Create public encryptor
 	public_encryptor=PKCS1_OAEP.new(public_key) #Return a cipher object PKCS1OAEP_Cipher that can be used to perform PKCS#1 OAEP encryption or decryption
 
@@ -55,7 +55,7 @@ def encrypt_fernet_key():
 	with open('encrypted_fernet_key.txt','wb') as f:
 		encrypted_fernet_key=public_encryptor.encrypt(fernet_key) #encrypt fernet key with public key
 		f.write(encrypted_fernet_key)
-
+	print(f"[+] Encrypted Fernet Key : \n{encrypted_fernet_key}")
 
 if __name__ == '__main__':
 
