@@ -8,19 +8,19 @@ Ransomeware in Python (for Educational Purposes Only)
 
 ![](https://raw.githubusercontent.com/whokilleddb/Ransomware-in-Python/main/Images/Ransomware.png)
 
--> First Generate A **RSA Key Pair** Using The [Key Generation Script](https://github.com/whokilleddb/Ransomware-in-Python/blob/main/keyGen.py)
+* First Generate A **RSA Key Pair** Using The [Key Generation Script](https://github.com/whokilleddb/Ransomware-in-Python/blob/main/keyGen.py)
 
--> Transfer the **Public Key (public.pem)** And The [Ransomware Script](https://github.com/whokilleddb/Ransomware-in-Python/blob/main/Ransomware.py)
+* Transfer the **Public Key (public.pem)** And The [Ransomware Script](https://github.com/whokilleddb/Ransomware-in-Python/blob/main/Ransomware.py)
 
--> Transfer Over The **EMAIL_Me.txt** Stored Under The Desktop Directory Of The Current User To The Attacker
+* Transfer Over The **EMAIL_Me.txt** Stored Under The Desktop Directory Of The Current User To The Attacker
 
--> Decrypt The **EMAIL_Me.txt** Using The **Private RSA Key (.private.pem)** Via The Same Key Generation Script](https://github.com/whokilleddb/Ransomware-in-Python/blob/main/keyGen.py)
+* Decrypt The **EMAIL_Me.txt** Using The **Private RSA Key (.private.pem)** Via The Same Key Generation Script](https://github.com/whokilleddb/Ransomware-in-Python/blob/main/keyGen.py)
 
--> A Text File Called **PUT_ME_ON_DESKTOP.txt** Is Generated 
+* A Text File Called **PUT_ME_ON_DESKTOP.txt** Is Generated 
 
--> Transfer Over **PUT_ME_ON_DESKTOP.txt** To The Victim And Place It In The Desktop Folder
+* Transfer Over **PUT_ME_ON_DESKTOP.txt** To The Victim And Place It In The Desktop Folder
 
--> BOOM ! The Files Are Decrypted Back !
+* BOOM ! The Files Are Decrypted Back !
 
 
 ### Sample Output On A Bodhi Linux :
